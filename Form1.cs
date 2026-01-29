@@ -13,7 +13,8 @@ namespace ImageProcessingApp
 {
     public partial class Form1 : Form
     {
-        private Bitmap loadedImage;
+        private Bitmap originalImage;
+        private Bitmap processedImage;
 
         public Form1()
         {
@@ -27,30 +28,83 @@ namespace ImageProcessingApp
 
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                loadedImage = new Bitmap(ofd.FileName);
-                pictureBox.Image = loadedImage;
+                originalImage = new Bitmap(ofd.FileName);
+                pictureBoxOriginal.Image = originalImage;
+                pictureBoxProcessed.Image = null;
+                processedImage = null;
             }
         }
 
-        private void btnGrayscale_Click(object sender, EventArgs e)
+        private async void btnGrayscale_Click(object sender, EventArgs e)
         {
-            if (loadedImage == null) return;
-            Grayscale grayFilter = new Grayscale(0.2125, 0.7154, 0.0721);
-            pictureBox.Image = grayFilter.Apply(loadedImage);
+            if (originalImage == null) return;
+            
+            this.Cursor = Cursors.WaitCursor;
+            btnGrayscale.Enabled = false;
+            
+            try
+            {
+                processedImage = await Task.Run(() =>
+                {
+                    Grayscale grayFilter = new Grayscale(0.2125, 0.7154, 0.0721);
+                    return grayFilter.Apply(originalImage);
+                });
+                
+                pictureBoxProcessed.Image = processedImage;
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+                btnGrayscale.Enabled = true;
+            }
         }
 
-        private void btnInvert_Click(object sender, EventArgs e)
+        private async void btnInvert_Click(object sender, EventArgs e)
         {
-            if (loadedImage == null) return;
-            Invert invertFilter = new Invert();
-            pictureBox.Image = invertFilter.Apply(loadedImage);
+            if (originalImage == null) return;
+            
+            this.Cursor = Cursors.WaitCursor;
+            btnInvert.Enabled = false;
+            
+            try
+            {
+                processedImage = await Task.Run(() =>
+                {
+                    Invert invertFilter = new Invert();
+                    return invertFilter.Apply(originalImage);
+                });
+                
+                pictureBoxProcessed.Image = processedImage;
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+                btnInvert.Enabled = true;
+            }
         }
 
-        private void btnBlur_Click(object sender, EventArgs e)
+        private async void btnBlur_Click(object sender, EventArgs e)
         {
-            if (loadedImage == null) return;
-            GaussianBlur blurFilter = new GaussianBlur(4, 11);
-            pictureBox.Image = blurFilter.Apply(loadedImage);
+            if (originalImage == null) return;
+            
+            this.Cursor = Cursors.WaitCursor;
+            btnBlur.Enabled = false;
+            
+            try
+            {
+                processedImage = await Task.Run(() =>
+                {
+                    GaussianBlur blurFilter = new GaussianBlur(4, 11);
+                    return blurFilter.Apply(originalImage);
+                });
+                
+                pictureBoxProcessed.Image = processedImage;
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+                btnBlur.Enabled = true;
+            }
         }
     }
 }
